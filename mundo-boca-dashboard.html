@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#272E44">
+  <title>Mundo Boca · Banco visual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #272e44;
+      --bg-deep: #1e2437;
+      --panel: #2d3550;
+      --accent: #f9a61b;
+      --ink: #f2f0eb;
+      --ink-soft: rgba(242, 240, 235, 0.62);
+      --ink-dim: rgba(242, 240, 235, 0.40);
+      --line: rgba(242, 240, 235, 0.14);
+      --line-2: rgba(242, 240, 235, 0.28);
+      --card-h: clamp(180px, 30vh, 330px);
+      --r-sm: 12px;
+      --r-md: 18px;
+      --r-lg: 26px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image:
+        radial-gradient(900px 500px at 12% -8%, rgba(249, 166, 27, 0.13), transparent 60%),
+        radial-gradient(760px 460px at 92% 6%, rgba(90, 140, 220, 0.14), transparent 62%);
+      background-attachment: fixed;
+      color: var(--ink);
+      font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--accent); color: var(--bg); }
+
+    h1, h2, h3, .display {
+      font-family: 'Anton', 'Arial Black', Impact, sans-serif;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.012em;
+      margin: 0;
+      line-height: 1.02;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ---------- TOP BAR ---------- */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px clamp(16px, 4vw, 48px);
+      background: rgba(30, 36, 55, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+    .brand .mark { font-size: clamp(18px, 2.4vw, 24px); }
+    .brand .mark em { color: var(--accent); font-style: normal; }
+    .brand .sub { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+
+    .topnav { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .tlink {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink-soft);
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 180ms var(--ease);
+      white-space: nowrap;
+    }
+
+    .tlink:hover { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+    /* ---------- SECTION ---------- */
+    .section { padding: clamp(34px, 6vw, 70px) 0 clamp(20px, 4vw, 40px); }
+    .wrap { padding: 0 clamp(16px, 4vw, 48px); }
+
+    .sec-head {
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .sec-head h2 { font-size: clamp(30px, 5.4vw, 58px); }
+    .sec-head p { margin: 6px 0 0; color: var(--ink-soft); max-width: 56ch; font-size: 14px; }
+    .sec-head .count { color: var(--accent); }
+
+    .railnav { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .nbtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid var(--line-2);
+      background: rgba(242, 240, 235, 0.05);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 180ms var(--ease);
+    }
+
+    .nbtn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); transform: translateY(-2px); }
+    .nbtn:active { transform: translateY(0) scale(0.96); }
+    .nbtn svg { width: 18px; height: 18px; }
+
+    .hint { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); }
+
+    /* ---------- INFINITE RAIL ---------- */
+    .rail {
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      padding: 6px 0 10px;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    }
+
+    .rail.grabbing { cursor: grabbing; }
+
+    .track { position: relative; height: var(--card-h); }
+
+    .card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: var(--card-h);
+      padding: 0;
+      will-change: transform;
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      background: #1a1f31;
+      cursor: pointer;
+      transition: transform 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease);
+    }
+
+    .card img, .card video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(30, 36, 55, 0) 55%, rgba(30, 36, 55, 0.85));
+      opacity: 0;
+      transition: opacity 260ms var(--ease);
+    }
+
+    .card:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+    .card:hover::after { opacity: 1; }
+
+    .card-tag {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 2;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--accent);
+      padding: 4px 9px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all 260ms var(--ease);
+    }
+
+    .card-num {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 2;
+      font-family: 'Anton', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      background: rgba(30, 36, 55, 0.72);
+      backdrop-filter: blur(6px);
+      padding: 3px 8px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 260ms var(--ease);
+    }
+
+    .card:hover .card-tag, .card:hover .card-num { opacity: 1; transform: none; }
+
+    .card-play {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-size: 26px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+    }
+
+    /* ---------- FEATURED GROUPS ---------- */
+    .featured { border-top: 1px solid var(--line); margin-top: clamp(30px, 5vw, 56px); }
+
+    .groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: clamp(16px, 2.2vw, 26px);
+    }
+
+    .gcard {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      background: linear-gradient(180deg, rgba(242, 240, 235, 0.05), rgba(242, 240, 235, 0.02));
+      overflow: hidden;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+      transition: transform 300ms var(--ease), border-color 300ms var(--ease), box-shadow 300ms var(--ease);
+    }
+
+    .gcard:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38); }
+
+    .gcover { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #1a1f31; }
+    .gcover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms var(--ease); }
+    .gcard:hover .gcover img { transform: scale(1.05); }
+
+    .gnum {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(34px, 4vw, 46px);
+      color: var(--accent);
+      text-shadow: 0 3px 16px rgba(0, 0, 0, 0.55);
+      line-height: 1;
+    }
+
+    .gpill {
+      position: absolute;
+      right: 12px;
+      top: 14px;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: rgba(30, 36, 55, 0.78);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--line);
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: var(--ink-soft);
+    }
+
+    .gbody { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .gbody h3 { font-size: 24px; }
+    .gbody p { margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+
+    .gthumbs { display: flex; gap: 6px; margin-top: auto; padding-top: 12px; }
+    .gthumbs span {
+      flex: 1 1 0;
+      height: 44px;
+      border-radius: 8px;
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--line);
+      opacity: 0.75;
+      transition: opacity 260ms var(--ease);
+    }
+    .gcard:hover .gthumbs span { opacity: 1; }
+
+    .gcta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .gcta svg { width: 14px; height: 14px; }
+
+    /* ---------- LIGHTBOX ---------- */
+    .lb {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: minmax(0, 1fr);
+      background: rgba(22, 27, 42, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .lb.open { display: grid; animation: fade 260ms var(--ease); }
+
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .lb-head {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 16px;
+      padding: 16px clamp(14px, 3vw, 32px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .lb-title { display: flex; flex-direction: column; min-width: 0; }
+    .lb-title strong { font-family: 'Anton', sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(15px, 2.2vw, 22px); letter-spacing: 0.02em; }
+    .lb-title span { font-size: 11.5px; color: var(--ink-dim); letter-spacing: 0.1em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .lb-counter {
+      margin-left: auto;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      font-family: 'Anton', sans-serif;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+
+    .lb-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: clamp(10px, 2vw, 26px);
+      min-height: 0;
+    }
+
+    #lbMedia {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .lb-stage img, .lb-stage video {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--r-md);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+      animation: pop 320ms var(--ease);
+    }
+
+    @keyframes pop { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: none; } }
+
+    .lb-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid var(--line-2);
+      background: rgba(30, 36, 55, 0.72);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      z-index: 3;
+      transition: all 180ms var(--ease);
+    }
+
+    .lb-arrow:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .lb-arrow.prev { left: clamp(8px, 2vw, 26px); }
+    .lb-arrow.next { right: clamp(8px, 2vw, 26px); }
+    .lb-arrow svg { width: 20px; height: 20px; }
+
+    .lb-foot { padding: 12px clamp(14px, 3vw, 32px) 18px; border-top: 1px solid var(--line); min-width: 0; }
+
+    .lb-thumbs {
+      display: flex;
+      min-width: 0;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-2) transparent;
+    }
+
+    .lb-thumbs::-webkit-scrollbar { height: 6px; }
+    .lb-thumbs::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; }
+
+    .lb-thumb {
+      flex: 0 0 auto;
+      width: 78px;
+      height: 52px;
+      padding: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #1a1f31;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: all 200ms var(--ease);
+    }
+
+    .lb-thumb img, .lb-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lb-thumb:hover { opacity: 0.85; }
+    .lb-thumb.active { opacity: 1; border-color: var(--accent); transform: translateY(-2px); }
+
+    .lb-close {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--line-2);
+      background: transparent;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 180ms var(--ease);
+      flex: 0 0 auto;
+    }
+
+    .lb-close:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .lb-close svg { width: 18px; height: 18px; }
+
+    .foot {
+      padding: 30px clamp(16px, 4vw, 48px) 44px;
+      color: var(--ink-dim);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-top: 1px solid var(--line);
+      margin-top: 40px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .foot .dot { color: var(--accent); }
+
+    @media (max-width: 760px) {
+      .topbar { gap: 10px; padding: 12px 16px; }
+      .topbar .brand .sub { display: none; }
+      .topnav a.tlink { display: none; }
+      .lb-arrow { width: 42px; height: 42px; }
+      .lb-head { gap: 10px; }
+      .railnav .hint { display: none; }
+      .sec-head { gap: 12px; }
+      .railnav { margin-left: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark display">Mundo <em>Boca</em></span>
+      <span class="sub">Banco visual</span>
+    </div>
+    <nav class="topnav">
+      <a class="tlink" href="#moodboard">Moodboard</a>
+      <a class="tlink" href="#destacados">Destacados</a>
+      <button class="tlink" id="openAll" type="button">Ver las 3 rutas</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section" id="moodboard">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">Carrusel infinito · navegación manual</p>
+            <h2>Moodboard</h2>
+            <p>Todas las piezas de referencia y exploración. Arrastrá el riel, usá las flechas del teclado o los
+              botones. Hacé clic en cualquier imagen para verla en grande.</p>
+          </div>
+          <div class="railnav">
+            <span class="hint">← → · arrastrar</span>
+            <button class="nbtn" id="railPrev" type="button" aria-label="Anterior">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <button class="nbtn" id="railNext" type="button" aria-label="Siguiente">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="rail" id="rail">
+        <div class="track" id="track"></div>
+      </div>
+    </section>
+
+    <section class="section featured" id="destacados">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <p class="eyebrow">Presentación destacada</p>
+            <h2>Las tres rutas</h2>
+            <p>Los tres grupos de imagen finales. Abrí cualquiera para verlo a pantalla completa con todas sus
+              variantes.</p>
+          </div>
+          <div class="railnav">
+            <span class="hint" id="groupHint"></span>
+          </div>
+        </div>
+        <div class="groups" id="groups"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Mundo Boca</span><span class="dot">·</span>
+    <span id="footCount"></span><span class="dot">·</span>
+    <span>Comanda Design</span>
+  </footer>
+
+  <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Presentación">
+    <div class="lb-head">
+      <button class="lb-close" id="lbClose" type="button" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path
+            d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+      <div class="lb-title">
+        <strong id="lbTitle"></strong>
+        <span id="lbCaption"></span>
+      </div>
+      <div class="lb-counter" id="lbCounter"></div>
+    </div>
+    <div class="lb-stage" id="lbStage">
+      <button class="lb-arrow prev" id="lbPrev" type="button" aria-label="Anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+      </button>
+      <div id="lbMedia"></div>
+      <button class="lb-arrow next" id="lbNext" type="button" aria-label="Siguiente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+      </button>
+    </div>
+    <div class="lb-foot">
+      <div class="lb-thumbs" id="lbThumbs"></div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {"mood": [{"src": "imgs/Moodboard/1787858382233-497d904a-43c90cc6-340a-4ea8-af09-5261fb6a7428.jpeg?v=1787858785", "w": 1585, "h": 1600, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858382233-497d904a-43c90cc6-340a-4ea8-af09-5261fb6a7428.jpeg"}, {"src": "imgs/Moodboard/1787858383430-9cf42183-78331d47-4f30-4390-83fc-a47a2175f98a.jpeg?v=1787858787", "w": 1600, "h": 964, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858383430-9cf42183-78331d47-4f30-4390-83fc-a47a2175f98a.jpeg"}, {"src": "imgs/Moodboard/1787858384517-e1bbf49d-db3043e3-3099-4b03-9b4b-dd4884a83e43.jpeg?v=1787858788", "w": 1600, "h": 964, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858384517-e1bbf49d-db3043e3-3099-4b03-9b4b-dd4884a83e43.jpeg"}, {"src": "imgs/Moodboard/1787858385185-3c9c7c1b-78c4c6a9-fb84-4701-8fbe-2e1798456caf.jpeg?v=1787858788", "w": 1600, "h": 964, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858385185-3c9c7c1b-78c4c6a9-fb84-4701-8fbe-2e1798456caf.jpeg"}, {"src": "imgs/Moodboard/1787858386350-a036f7f8-776658668_1088921416906162_7668721849103.webp?v=1787858789", "w": 1920, "h": 1280, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858386350-a036f7f8-776658668_1088921416906162_7668721849103.webp"}, {"src": "imgs/Moodboard/1787858388216-3d5b3e74-774432451_4169958893134994_1667140066288.webp?v=1787858790", "w": 1920, "h": 1280, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858388216-3d5b3e74-774432451_4169958893134994_1667140066288.webp"}, {"src": "imgs/Moodboard/1787858389684-711312ac-774581964_1834843967856772_4481301844882.webp?v=1787858790", "w": 1280, "h": 1920, "video": false, "src_label": "Referencia", "kind": "Estilo", "file": "1787858389684-711312ac-774581964_1834843967856772_4481301844882.webp"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_38c22730-67e6-477a-9e34-6d6fb6056eaf_0.mp4?v=1787953929", "w": 16, "h": 9, "video": true, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_38c22730-67e6-477a-9e34-6d6fb6056eaf_0.mp4"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_0.png?v=1787953939", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_0.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_1.png?v=1787953940", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_1.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_2.png?v=1787953942", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_8ec55d4d-e75f-4b6c-af0e-3206e979d6ef_2.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_9020cf71-3b52-41ab-bf17-6612f52e0bf8_1.png?v=1787953919", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_9020cf71-3b52-41ab-bf17-6612f52e0bf8_1.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_9020cf71-3b52-41ab-bf17-6612f52e0bf8_3.png?v=1787953921", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_9020cf71-3b52-41ab-bf17-6612f52e0bf8_3.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_0.png?v=1787953933", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_0.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_1.png?v=1787953934", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_1.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_2.png?v=1787953935", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_2.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_3.png?v=1787953936", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confi_d64154f5-5696-42a9-bab6-f53169b44144_3.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_362d9aeb-c514-47de-9a36-8c7e2320072a.png?v=1787953938", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_362d9aeb-c514-47de-9a36-8c7e2320072a.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_4c4d3e6e-8d16-4ec1-9b23-7e5658728375.png?v=1787953929", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_4c4d3e6e-8d16-4ec1-9b23-7e5658728375.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_9e7240ad-63e0-4779-a321-e582af352850.png?v=1787953918", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_9e7240ad-63e0-4779-a321-e582af352850.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_f8237d8b-4a4e-4948-8815-24a8dcd9432b.png?v=1787953916", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_confide_f8237d8b-4a4e-4948-8815-24a8dcd9432b.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_float_5e8e3845-f9b5-4708-9faf-b8cae2ac8b5b_1.png?v=1787953947", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_float_5e8e3845-f9b5-4708-9faf-b8cae2ac8b5b_1.png"}, {"src": "imgs/Moodboard/ganimo_Athletic_muscular_male_superhero_with_light_skin_float_5e8e3845-f9b5-4708-9faf-b8cae2ac8b5b_3.png?v=1787953950", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Héroe", "file": "ganimo_Athletic_muscular_male_superhero_with_light_skin_float_5e8e3845-f9b5-4708-9faf-b8cae2ac8b5b_3.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_0.png?v=1787953955", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_0.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_2.png?v=1787953956", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_2.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_3.png?v=1787953957", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__3ac7fb54-737c-4fca-b9e7-ab3f89f41e77_3.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_0.png?v=1787953951", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_0.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_1.png?v=1787953952", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_1.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_3.png?v=1787953953", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration__e9f27e06-56a9-48da-8771-c4af6287afca_3.png"}, {"src": "imgs/Moodboard/ganimo_Modern_American_comic_book_cover_digital_illustration_th_f920bb61-d5cc-441c-9480-1f6248d18c65.png?v=1787953954", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Portada comic", "file": "ganimo_Modern_American_comic_book_cover_digital_illustration_th_f920bb61-d5cc-441c-9480-1f6248d18c65.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_both_arm_105c50b7-92f5-4b8c-aaa8-656bebf50397_0.png?v=1787953897", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_both_arm_105c50b7-92f5-4b8c-aaa8-656bebf50397_0.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_both_arm_105c50b7-92f5-4b8c-aaa8-656bebf50397_3.png?v=1787953899", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_both_arm_105c50b7-92f5-4b8c-aaa8-656bebf50397_3.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_0.png?v=1787953891", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_0.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_1.png?v=1787953889", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_1.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_3.png?v=1787953894", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_97553e21-adc8-404a-87de-0fef3bd6d42f_3.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_bdaafd25-9326-464b-848a-f5ccf7c52287_0.png?v=1787953911", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_bdaafd25-9326-464b-848a-f5ccf7c52287_0.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_bdaafd25-9326-464b-848a-f5ccf7c52287_2.png?v=1787953914", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_bdaafd25-9326-464b-848a-f5ccf7c52287_2.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_ea666261-a643-455d-8e98-c9358ca0094a_0.png?v=1787953906", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_ea666261-a643-455d-8e98-c9358ca0094a_0.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_fa2c2b07-7e2f-4cf4-a378-4e1d1d5426a3_2.png?v=1787953903", "w": 1456, "h": 816, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_fa2c2b07-7e2f-4cf4-a378-4e1d1d5426a3_2.png"}, {"src": "imgs/Moodboard/ganimo_Young_athletic_light_skinned_female_superhero_floating_i_1bd4247a-1227-4f9c-ba2d-94f57cc8e2f7.png?v=1787953895", "w": 2912, "h": 1632, "video": false, "src_label": "Midjourney", "kind": "Heroína", "file": "ganimo_Young_athletic_light_skinned_female_superhero_floating_i_1bd4247a-1227-4f9c-ba2d-94f57cc8e2f7.png"}, {"src": "imgs/Moodboard/grok-02866836-6c50-4cf5-9399-f8e32f92cf5a.jpg?v=1787953983", "w": 1408, "h": 1408, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-02866836-6c50-4cf5-9399-f8e32f92cf5a.jpg"}, {"src": "imgs/Moodboard/grok-image-181f5a23-d5b7-493d-ba2d-090a5e9ec40f.jpg?v=1787842237", "w": 1792, "h": 1008, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-181f5a23-d5b7-493d-ba2d-090a5e9ec40f.jpg"}, {"src": "imgs/Moodboard/grok-image-325bdc81-56c5-427a-add1-2daf9925b8e8.jpg?v=1787842212", "w": 1792, "h": 1008, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-325bdc81-56c5-427a-add1-2daf9925b8e8.jpg"}, {"src": "imgs/Moodboard/grok-image-79a38587-8e14-4c7d-88bf-2bf207d00927%20%281%29.jpg?v=1787842201", "w": 1152, "h": 1712, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-79a38587-8e14-4c7d-88bf-2bf207d00927 (1).jpg"}, {"src": "imgs/Moodboard/grok-image-7e8f8efa-9851-44d8-a8b0-28f46c7ae0b7.jpg?v=1787842219", "w": 1792, "h": 1008, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-7e8f8efa-9851-44d8-a8b0-28f46c7ae0b7.jpg"}, {"src": "imgs/Moodboard/grok-image-937b3388-973d-4c39-9e02-fa8c302f3a87.jpg?v=1787842592", "w": 1168, "h": 1696, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-937b3388-973d-4c39-9e02-fa8c302f3a87.jpg"}, {"src": "imgs/Moodboard/grok-image-a8328cb5-d998-47c9-9f3c-b63902548efe.jpg?v=1787842216", "w": 1792, "h": 1008, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-a8328cb5-d998-47c9-9f3c-b63902548efe.jpg"}, {"src": "imgs/Moodboard/grok-image-e6c35f22-221e-47c7-96d1-3c39a15ce43b.jpg?v=1787844901", "w": 1168, "h": 1696, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-e6c35f22-221e-47c7-96d1-3c39a15ce43b.jpg"}, {"src": "imgs/Moodboard/grok-image-f7b21373-a5a9-4cc0-9403-1887d0811545%20%281%29.jpg?v=1787842192", "w": 1152, "h": 1712, "video": false, "src_label": "Grok", "kind": "Exploración", "file": "grok-image-f7b21373-a5a9-4cc0-9403-1887d0811545 (1).jpg"}], "groups": [{"id": "g1", "num": "01", "name": "Escuadrón heroico", "claim": "Comic cel-shaded, cielo en llamas y ciudad gótica al fondo. La ruta más épica y adulta, con fichas de personaje y turnarounds de los dos protagonistas.", "items": [{"src": "imgs/001.jpg?v=1787941307", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Key visual", "file": "001.jpg"}, {"src": "imgs/001M.jpg?v=1787961393", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Ficha · héroe", "file": "001M.jpg"}, {"src": "imgs/001G.jpg?v=1787961396", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Ficha · heroína", "file": "001G.jpg"}, {"src": "imgs/001b.jpg?v=1787941264", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · héroe", "file": "001b.jpg"}, {"src": "imgs/001g360.jpg?v=1787959316", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · heroína", "file": "001g360.jpg"}]}, {"id": "g2", "num": "02", "name": "Portada Mundo Boca", "claim": "Tapa de comic con logo, torres-muela y línea limpia estilo animación de TV. La ruta más literal del naming, con fichas y turnarounds de la dupla.", "items": [{"src": "imgs/002.jpg?v=1787958007", "w": 1152, "h": 1728, "video": false, "src_label": "Ruta", "kind": "Portada", "file": "002.jpg"}, {"src": "imgs/002M.jpg?v=1787842171", "w": 1168, "h": 1696, "video": false, "src_label": "Ruta", "kind": "Ficha · héroe", "file": "002M.jpg"}, {"src": "imgs/002g.jpg?v=1787842167", "w": 1168, "h": 1696, "video": false, "src_label": "Ruta", "kind": "Ficha · heroína", "file": "002g.jpg"}, {"src": "imgs/002m360.jpg?v=1787842372", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · héroe", "file": "002m360.jpg"}, {"src": "imgs/002g360.jpg?v=1787842375", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · heroína", "file": "002g360.jpg"}]}, {"id": "g3", "num": "03", "name": "Cartoon cálido", "claim": "Trazo suave, línea gruesa y gesto amable. La ruta más infantil y cercana para pacientes chicos: dos escenas, fichas individuales y los dos turnarounds.", "items": [{"src": "imgs/003.jpg?v=1787941297", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Key visual", "file": "003.jpg"}, {"src": "imgs/003opb.jpg?v=1787958496", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Escena · opción B", "file": "003opb.jpg"}, {"src": "imgs/003b.jpg?v=1787962689", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Ficha · héroe", "file": "003b.jpg"}, {"src": "imgs/003g.jpg?v=1787962654", "w": 1392, "h": 1408, "video": false, "src_label": "Ruta", "kind": "Ficha · heroína", "file": "003g.jpg"}, {"src": "imgs/003b360.jpg?v=1787941289", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · héroe", "file": "003b360.jpg"}, {"src": "imgs/003g360.jpg?v=1787941284", "w": 1792, "h": 1008, "video": false, "src_label": "Ruta", "kind": "Turnaround · heroína", "file": "003g360.jpg"}]}]};
+
+    /* ============ RAIL INFINITO ============ */
+    const rail = document.getElementById('rail');
+    const track = document.getElementById('track');
+    const GAP = 14;
+    let cards = [], ratios = [], widths = [], bases = [];
+    let W = 0, pos = 0, anim = null, target = 0, railW = 0, copiesBuilt = 0;
+
+    const mod = (n, m) => ((n % m) + m) % m;
+
+    function cardEl(it, i) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'card';
+      el.setAttribute('aria-label', 'Abrir ' + it.kind + ' ' + (i + 1));
+      el.innerHTML =
+        (it.video
+          ? '<video src="' + it.src + '#t=0.5" muted playsinline preload="auto"></video>'
+          : '<img src="' + it.src + '" alt="' + it.kind + '" loading="lazy" decoding="async">') +
+        '<span class="card-tag">' + it.src_label + ' · ' + it.kind + '</span>' +
+        '<span class="card-num">' + String(i + 1).padStart(2, '0') + '/' + DATA.mood.length + '</span>' +
+        (it.video ? '<span class="card-play">▶</span>' : '');
+      el.addEventListener('click', () => {
+        if (moved) return;
+        openLB(DATA.mood, i, 'Moodboard', 'Referencias y exploraciones');
+      });
+      return el;
+    }
+
+    function buildRail(copies) {
+      track.innerHTML = '';
+      cards = []; ratios = [];
+      for (let c = 0; c < copies; c++) {
+        DATA.mood.forEach((it, i) => {
+          const el = cardEl(it, i);
+          if (c > 0) el.tabIndex = -1;
+          track.appendChild(el);
+          cards.push(el);
+          ratios.push(it.w / it.h);
+        });
+      }
+      copiesBuilt = copies;
+    }
+
+    function measure() {
+      railW = rail.clientWidth;
+      const H = track.clientHeight || 260;
+      let single = 0;
+      DATA.mood.forEach(it => { single += Math.round(H * it.w / it.h) + GAP; });
+      const need = Math.max(1, Math.min(8, Math.ceil((railW * 2) / single)));
+      if (need !== copiesBuilt) buildRail(need);
+      widths = []; bases = [];
+      let x = 0;
+      for (let i = 0; i < cards.length; i++) {
+        const w = Math.max(80, Math.round(H * ratios[i]));
+        cards[i].style.width = w + 'px';
+        widths.push(w);
+        bases.push(x);
+        x += w + GAP;
+      }
+      W = x;
+      render();
+    }
+
+    function render() {
+      if (!W) return;
+      const p = mod(pos, W);
+      for (let i = 0; i < cards.length; i++) {
+        let x = bases[i] - p;
+        if (x < -widths[i] - 60) x += W;
+        const el = cards[i];
+        el.style.transform = 'translate3d(' + x + 'px,0,0)';
+        const vis = x < railW + 60;
+        if (el._vis !== vis) { el.style.visibility = vis ? '' : 'hidden'; el._vis = vis; }
+      }
+    }
+
+    function animateTo(to, dur) {
+      if (anim) cancelAnimationFrame(anim);
+      target = to;
+      const from = pos, delta = to - from, t0 = performance.now();
+      dur = dur || 480;
+      (function tick(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        const e = 1 - Math.pow(1 - p, 3);
+        pos = from + delta * e;
+        render();
+        if (p < 1) anim = requestAnimationFrame(tick); else anim = null;
+      })(t0);
+    }
+
+    function stepSize() { return Math.min(rail.clientWidth * 0.8, 880); }
+
+    function nudge(dir) { animateTo((anim ? target : pos) + dir * stepSize()); }
+
+    document.getElementById('railNext').addEventListener('click', () => nudge(1));
+    document.getElementById('railPrev').addEventListener('click', () => nudge(-1));
+
+    /* drag + inercia */
+    let dragging = false, moved = false, captured = false, startX = 0, startPos = 0, lastX = 0, lastT = 0, vel = 0, momentum = null;
+
+    rail.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      dragging = true; moved = false; captured = false;
+      startX = lastX = e.clientX; startPos = pos; lastT = performance.now(); vel = 0;
+      if (anim) { cancelAnimationFrame(anim); anim = null; }
+      if (momentum) { cancelAnimationFrame(momentum); momentum = null; }
+      rail.classList.add('grabbing');
+    });
+
+    rail.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 4) {
+        moved = true;
+        try { rail.setPointerCapture(e.pointerId); captured = true; } catch (err) { }
+      }
+      if (!moved) return;
+      pos = startPos - dx;
+      const now = performance.now(), dt = now - lastT;
+      if (dt > 0) vel = (lastX - e.clientX) / dt * 16;
+      lastX = e.clientX; lastT = now;
+      render();
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      rail.classList.remove('grabbing');
+      if (captured) { try { rail.releasePointerCapture(e.pointerId); } catch (err) { } captured = false; }
+      let v = Math.max(-60, Math.min(60, vel));
+      (function glide() {
+        if (Math.abs(v) < 0.25) { momentum = null; return; }
+        pos += v; v *= 0.94; render();
+        momentum = requestAnimationFrame(glide);
+      })();
+      setTimeout(() => { moved = false; }, 60);
+    }
+
+    rail.addEventListener('pointerup', endDrag);
+    rail.addEventListener('pointercancel', endDrag);
+    rail.addEventListener('dragstart', e => e.preventDefault());
+
+    rail.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        if (anim) { cancelAnimationFrame(anim); anim = null; }
+        pos += e.deltaX;
+        render();
+      }
+    }, { passive: false });
+
+    /* ============ GRUPOS DESTACADOS ============ */
+    function buildGroups() {
+      const host = document.getElementById('groups');
+      DATA.groups.forEach(g => {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'gcard';
+        el.innerHTML =
+          '<div class="gcover">' +
+          '<img src="' + g.items[0].src + '" alt="' + g.name + '" loading="lazy" decoding="async">' +
+          '<span class="gnum">' + g.num + '</span>' +
+          '<span class="gpill">' + g.items.length + ' imágenes</span>' +
+          '</div>' +
+          '<div class="gbody">' +
+          '<h3>' + g.name + '</h3>' +
+          '<p>' + g.claim + '</p>' +
+          '<div class="gthumbs">' + g.items.map(i => '<span style="background-image:url(\'' + i.src + '\')"></span>').join('') + '</div>' +
+          '<span class="gcta">Abrir presentación ' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
+          '</span>' +
+          '</div>';
+        el.addEventListener('click', () => openLB(g.items, 0, 'Ruta ' + g.num + ' · ' + g.name, g.claim));
+        host.appendChild(el);
+      });
+    }
+
+    document.getElementById('openAll').addEventListener('click', () => {
+      const all = [];
+      DATA.groups.forEach(g => g.items.forEach(i => all.push(Object.assign({}, i, { kind: 'Ruta ' + g.num + ' · ' + i.kind }))));
+      openLB(all, 0, 'Las tres rutas', 'Recorrido completo de los grupos 01 · 02 · 03');
+    });
+
+    /* ============ LIGHTBOX ============ */
+    const lb = document.getElementById('lb');
+    const lbMedia = document.getElementById('lbMedia');
+    const lbThumbs = document.getElementById('lbThumbs');
+    const lbTitle = document.getElementById('lbTitle');
+    const lbCaption = document.getElementById('lbCaption');
+    const lbCounter = document.getElementById('lbCounter');
+    let lbItems = [], lbIdx = 0, lbSubtitle = '', lastFocus = null;
+
+    function openLB(items, idx, title, subtitle) {
+      lbItems = items; lbIdx = idx; lbSubtitle = subtitle || '';
+      lbTitle.textContent = title;
+      lastFocus = document.activeElement;
+      buildThumbs();
+      showItem();
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('lbNext').focus();
+    }
+
+    function closeLB() {
+      lb.classList.remove('open');
+      lbMedia.innerHTML = '';
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    function buildThumbs() {
+      lbThumbs.innerHTML = '';
+      lbItems.forEach((it, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'lb-thumb';
+        b.setAttribute('aria-label', 'Ir a ' + (i + 1));
+        b.innerHTML = it.video
+          ? '<video src="' + it.src + '#t=0.5" muted playsinline preload="auto"></video>'
+          : '<img src="' + it.src + '" alt="" loading="lazy" decoding="async">';
+        b.addEventListener('click', () => { lbIdx = i; showItem(); });
+        lbThumbs.appendChild(b);
+      });
+    }
+
+    function showItem() {
+      const it = lbItems[lbIdx];
+      lbMedia.innerHTML = it.video
+        ? '<video src="' + it.src + '" controls autoplay loop playsinline></video>'
+        : '<img src="' + it.src + '" alt="' + it.kind + '">';
+      lbCaption.textContent = it.kind + ' · ' + (lbSubtitle || '');
+      lbCounter.textContent = String(lbIdx + 1).padStart(2, '0') + ' / ' + String(lbItems.length).padStart(2, '0');
+      [...lbThumbs.children].forEach((c, i) => c.classList.toggle('active', i === lbIdx));
+      const active = lbThumbs.children[lbIdx];
+      if (active) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      const nxt = lbItems[(lbIdx + 1) % lbItems.length];
+      if (nxt && !nxt.video) { const p = new Image(); p.src = nxt.src; }
+    }
+
+    function nextItem(d) {
+      lbIdx = mod(lbIdx + d, lbItems.length);
+      showItem();
+    }
+
+    document.getElementById('lbNext').addEventListener('click', () => nextItem(1));
+    document.getElementById('lbPrev').addEventListener('click', () => nextItem(-1));
+    document.getElementById('lbClose').addEventListener('click', closeLB);
+    lb.addEventListener('click', e => {
+      if (e.target === lb || e.target.id === 'lbStage' || e.target.id === 'lbMedia') closeLB();
+    });
+
+    const isRight = e => e.key === 'ArrowRight' || e.key === 'Right' || e.keyCode === 39;
+    const isLeft = e => e.key === 'ArrowLeft' || e.key === 'Left' || e.keyCode === 37;
+
+    document.addEventListener('keydown', e => {
+      if (lb.classList.contains('open')) {
+        if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) closeLB();
+        else if (isRight(e)) nextItem(1);
+        else if (isLeft(e)) nextItem(-1);
+        return;
+      }
+      const tag = (document.activeElement || {}).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (isRight(e)) { e.preventDefault(); nudge(1); }
+      else if (isLeft(e)) { e.preventDefault(); nudge(-1); }
+    });
+
+    /* ============ INIT ============ */
+    buildRail(1);
+    buildGroups();
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
+    document.getElementById('groupHint').textContent =
+      DATA.groups.length + ' grupos · ' + DATA.groups.reduce((n, g) => n + g.items.length, 0) + ' imágenes';
+    document.getElementById('footCount').textContent =
+      DATA.mood.length + ' piezas de moodboard · ' + DATA.groups.length + ' rutas destacadas';
+  </script>
+</body>
+
+</html>
